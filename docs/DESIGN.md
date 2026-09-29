@@ -14,7 +14,7 @@ Both share one stylesheet-in-a-`<style>`-tag, one ground, one accent. There is n
 ## Structure
 
 ```
-index.html                 front page — name, tagline, intro, footer line, three links
+index.html                 front page — name, tagline, intro, footer line, four links
 log.html                   the log — header, ENTRIES block, footer
 CNAME                      created last: the custom domain (docs/SYSTEM.md)
 assets/avatar.webp         256x256 WebP portrait, referenced by both pages and as the favicon
