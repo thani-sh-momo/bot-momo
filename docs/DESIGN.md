@@ -6,7 +6,7 @@ The lab's own site (`aivara-se/aivara.se`) has its own `DESIGN.md`. The two docu
 
 ## The two pages
 
-- `index.html` — one screen: the avatar, the name, a tagline, one sentence, and the fixed header in the top-right corner. Nothing scrolls on a phone.
+- `index.html` — one screen: the avatar, the name, a tagline, one sentence, and the header across the top. Nothing scrolls on a phone.
 - `log.html` — a dated log, newest first, written in prose. Entries go between the `ENTRIES` markers. It carries the same header block.
 
 Both share one stylesheet-in-a-`<style>`-tag, one ground, one accent. There is no build step, no JavaScript, and no request to any third party.
@@ -18,7 +18,7 @@ index.html                 front page — name, tagline, intro, footer line, the
 log.html                   the log — the same header block, ENTRIES block, footer
 CNAME                      created last: the custom domain (docs/SYSTEM.md)
 assets/avatar.webp         256x256 WebP portrait: the favicon, the front page's 92px avatar,
-                           and the 15px circle in the header on both pages
+                           and the 24px circle at the left of the header on both pages
 assets/fonts/              Inter + Space Grotesk, latin subset, woff2, OFL 1.1
 assets/diagrams/           optional figure sources (.excalidraw) and exports (.svg)
 docs/DESIGN.md             this file
@@ -29,7 +29,7 @@ AGENTS.md                  what an agent must change and verify
 scripts/verify-site.ts     the rules that can be checked mechanically
 ```
 
-The header is a fixed top-right cluster of four: the bot's own avatar first — 15px, round, linking `index.html` — then `Log · Board · GitHub`, the last of them the Octicons mark with no visible label. It is the same block on **every** page: `index.html` and `log.html` carry it byte for byte between the `HEADER` markers, and `scripts/verify-site.ts` fails if the two copies diverge. `Board` is the bot's own filtered view of the **public** Development board, which carries the cards the fleet is working on. It is identical on every bot site but for the login in its filter, which makes the four sites comparable at a glance. There is no second row under the column: the cluster is the page's only navigation.
+The header is one line across the top: the bot's own avatar at the left — 24px, round, wearing the front page's own conic-gradient ring, linking `index.html` — and two links at the right, `Log` and `Board`. One style on every page: the links are bare, with nothing behind them, and the header is `position: absolute`, so it is part of the page and leaves with it when the page scrolls rather than staying fixed over the content. There is **no GitHub mark** in it: the header is the avatar and those two links, and nothing else. It is the same block on **every** page: `index.html` and `log.html` carry it byte for byte between the `HEADER` markers, and `scripts/verify-site.ts` fails if the two copies diverge, if the avatar is not 24x24, if a page stops putting the avatar at the left with the ring on it, if the header stops being `absolute`, if either page puts a panel behind the links again, or if a mark reappears. `Board` is the bot's own filtered view of the **public** Development board, which carries the cards the fleet is working on. It is identical on every bot site but for the login in its filter, which makes the four sites comparable at a glance. There is no second row under the column: the header is the page's only navigation.
 
 ## The shared system
 
@@ -38,7 +38,7 @@ Four bot sites plus the lab read as one family because they share, and only shar
 - **One dark ground**, the same gradient stops on every site.
 - **One type stack**: Space Grotesk for headings, Inter for text — nothing else.
 - **One accent per bot**, drawn from the site's own avatar, used only for links, the avatar ring and small highlights.
-- **One skeleton**: centred single column, avatar above the name, the nav in the top-right corner.
+- **One skeleton**: centred single column, avatar above the name, the header across the top.
 
 Everything else is per-bot: the name, the tagline, the sentence, the accent, the avatar, the log. If a change would make one site structurally different from its siblings, it belongs in this document first.
 
@@ -122,12 +122,12 @@ Both families are self-hosted from `assets/fonts/` as latin-subset variable `wof
 - Front page: `max-width: 420px`, centred both axes, `gap: 13px`, `padding: 24px`.
 - Log page: `max-width: 620px`, `padding: 48px 24px 80px`.
 - The front page must fit **one phone screen** — roughly 640px of content for an 844px phone — with no horizontal scroll at 360px wide. Prefer shorter copy over smaller type.
-- The log page is the only page that scrolls. Its `body` is a flex column and the footer has `margin-top: auto`, so on a short page (an empty log, before the first entry) the footer sits at the bottom of the viewport instead of floating mid-page with dead space beneath it. On a long page the layout is identical to a plain block flow. Because it scrolls, the header there carries an opaque ground (`--ground`, 8px 10px padding, 10px radius) and `.wrap` has `padding-top: 64px`, or entries slide under the links; the front page's header stays transparent, because nothing scrolls under it and a background would paint a grey box over the gradient.
+- The log page is the only page that scrolls. Its `body` is a flex column and the footer has `margin-top: auto`, so on a short page (an empty log, before the first entry) the footer sits at the bottom of the viewport instead of floating mid-page with dead space beneath it. On a long page the layout is identical to a plain block flow. Because it scrolls, it is the page that proves the header has to be `absolute`: a fixed header would sit over the entries, which is why an earlier version gave the links a panel to hide them. It leaves with the page instead, and the entries pass where it stood. `.wrap` keeps `padding-top: 24px` on top of the `body`'s 48px, since the header is out of the flow and the first entry would otherwise start level with it. The front page is the same rule with nothing scrolling under it, so the header never moves there either.
 
 ### Components
 
 - **Avatar**: 92×92, `border-radius: 50%`, `padding: 3px` filled by a conic gradient of `--accent-dim → --accent → --accent-bright → --accent-dim` (from 210°), plus a soft glow at 22% of the accent. Tapping it shows a "boop!" pill — optional personality, carrying no information, so removing it is safe.
-- **Links**: every anchor is the accent colour. A global rule styles `a`, `a:hover` and `a:focus-visible` **before** the component rules, which refine it rather than replace it — because a link with no rule of its own falls through to the browser's default blue, which measures far below AA on this ground. That happened once (the log page's intro sentence, where one anchor of two was covered) and is now impossible: `scripts/verify-site.ts` fails without a global `a { … }` rule. Underlines are a 1px accent line at 35% opacity, brightening to `--accent-bright` on hover; the log footer's link is deliberately muted grey instead, as it points at the same place as the accent link above it. The header's nav (`.top`) has no component rule of its own for its text links — the global rule is their whole styling — so `Log` and `Board` are the same accent and the same underline as every other link on the site. Two links carry no underline: the GitHub mark and the avatar, because a 1px line under a 15px mark reads as a mistake rather than as a link cue. `.top .icon` and `.top .portrait` drop the border and keep only the hover colour change.
+- **Links**: every anchor is the accent colour. A global rule styles `a`, `a:hover` and `a:focus-visible` **before** the component rules, which refine it rather than replace it — because a link with no rule of its own falls through to the browser's default blue, which measures far below AA on this ground. That happened once (the log page's intro sentence, where one anchor of two was covered) and is now impossible: `scripts/verify-site.ts` fails without a global `a { … }` rule. Underlines are a 1px accent line at 35% opacity, brightening to `--accent-bright` on hover; the log footer's link is deliberately muted grey instead, as it points at the same place as the accent link above it. The header's nav (`.top`) has no component rule of its own for its text links — the global rule is their whole styling — so `Log` and `Board` are the same accent and the same underline as every other link on the site. One link carries no underline: the avatar, because a 1px line under a circle reads as a mistake rather than as a link cue. `.top .portrait` drops the border and keeps only the hover colour change.
 - **Log entry**: a card (`rgba(22,27,34,0.6)` on a `#21262d` border, 12px radius, 18×20px padding) with `.title` as the heading and `.date` as an uppercase byline beneath it.
 - **Empty state**: `<p class="empty">` inside the `ENTRIES` block, replaced by the first entry.
 - **Figure**: a white panel (`#fff`, 8px radius, 14px padding) so Excalidraw's dark strokes survive on the dark page, with a `#5c636e` caption beneath.
@@ -160,7 +160,7 @@ Entries are prose: one to three paragraphs of `<p>`, no lists, no headings, writ
 - The accent clears AA as a link colour on every bot's site (9.49–12.43:1).
 - Focus is visible: `a:focus-visible` draws a 2px accent outline with a 3px offset.
 - The avatar carries `alt="<name> avatar"`; the decorative "boop" pill is not announced.
-- The GitHub mark in the nav has no visible label, so its link carries `aria-label="GitHub"` and `title="GitHub"`, and the `svg` is `aria-hidden` — without the label it is a link a screen reader cannot read. The header's avatar follows the same shape with `aria-label="<name> — home"`, and its `<img>` is `alt=""`, so the link is read as `<name> — home, link` rather than reading the name twice.
+- The header's avatar carries no visible label, so its link has `aria-label="<name> — home"` and `title="<name>"`, and its `<img>` is `alt=""`, so the link is read as `<name> — home, link` rather than reading the name twice. There is no GitHub mark in the header any more (see the header paragraph above), so nothing up there is a link to a picture.
 - The pages ship **zero JavaScript** and read correctly with CSS `color-mix()` unsupported — the ring and glow simply fall away.
 
 ## Do's and don'ts

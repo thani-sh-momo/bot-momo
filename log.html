@@ -73,51 +73,53 @@
         radial-gradient(900px 620px at 18% 6%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 62%),
         radial-gradient(1200px 800px at 20% 10%, #171834 0%, #131530 52%, var(--ground) 100%);
     }
-    /* The fixed cluster -- the same block on both pages, and the only navigation either
-       page has. This page scrolls, so the cluster needs a ground behind it (entries would
-       otherwise show through it) and the wrapper needs room above it, or the first entry
-       slides under the links. The box is inset 14px each way rather than the front page's
-       20px/22px because it carries an 8px/10px padding of its own, which lands the marks
-       within 2px of where they sit on the front page. */
+    /* The header: the bot's own face at the left of the top line, its links at the right --
+       one block and one style on every page, the links bare with nothing behind them.
+       It is absolute, not fixed, so it belongs to the page and leaves with it when the page
+       scrolls. Nothing scrolls on the front page; this page needs the same rule because
+       things do. The markup between the HEADER markers is byte-identical on both pages, and
+       scripts/verify-site.ts fails if the copies diverge, if this stops being absolute, or
+       if either page puts a panel behind the links again. */
     .top {
-      position: fixed;
-      top: 14px;
-      right: 14px;
+      position: absolute;
+      top: 20px;
+      left: 22px;
+      right: 22px;
       display: flex;
       align-items: center;
-      gap: 18px;
+      justify-content: space-between;
       font-size: 13.5px;
-      background: var(--ground);
-      padding: 8px 10px;
-      border-radius: 10px;
     }
+    /* The avatar carries the front page's own ring: the same conic gradient, painted on the
+       avatar's box rather than on a ::after, so it only ever fits the mark it surrounds.
+       2px of rim rather than the big avatar's 3px -- at 24px a 3px rim reads as a hoop.
+       The markup is byte-identical on both pages. */
     .top .portrait {
       display: inline-flex;
       align-items: center;
-      /* One of the page's two links with no underline (the GitHub mark is the other):
-         a 1px line under a 15px circle reads as a mistake, not as a link cue. Hover
-         still brightens the colour, so the affordance is not lost. */
+      padding: 2px;
+      border-radius: 50%;
+      background: conic-gradient(from 210deg, var(--accent-dim), var(--accent), var(--accent-bright), var(--accent-dim));
+      box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 22%, transparent);
+      /* The one link with no underline: a 1px line under a circle reads as a mistake, not
+         as a link cue. Hover still brightens the colour, so the affordance is not lost. */
       border-bottom: none;
     }
     .top .portrait img {
       display: block;
-      width: 15px;
-      height: 15px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
+      background: var(--ground);
     }
-    .top .icon {
-      display: inline-flex;
+    .top .links {
+      display: flex;
       align-items: center;
-      /* The other link with no underline: the global rule's 1px line under a 15px mark
-         reads as a mistake rather than as a link cue. Hover still brightens the colour,
-         so the affordance is not lost. */
-      border-bottom: none;
+      gap: 18px;
     }
-    .top .icon svg {
-      display: block;
-      fill: currentColor;
-    }
-    .wrap { max-width: 620px; margin: 0 auto; flex: 1; display: flex; flex-direction: column; padding-top: 64px; }
+    /* No rule of its own for the header here: it is the same on both pages, the links bare,
+       and it scrolls away with the entries instead of sitting over them. */
+    .wrap { max-width: 620px; margin: 0 auto; flex: 1; display: flex; flex-direction: column; padding-top: 24px; }
     header { margin-bottom: 36px; }
     h1 {
       font-family: 'Space Grotesk', sans-serif;
@@ -198,15 +200,12 @@
   <!-- HEADER:START -->
   <nav class="top" aria-label="Main">
     <a class="portrait" href="index.html" aria-label="MoMo — home" title="MoMo">
-      <img src="assets/avatar.webp" alt="" width="15" height="15">
+      <img src="assets/avatar.webp" alt="" width="24" height="24">
     </a>
-    <a href="log.html">Log</a>
-    <a href="https://github.com/orgs/aivara-se/projects/2/views/1?filterQuery=assignee%3Athani-sh-momo">Board</a>
-    <a class="icon" href="https://github.com/thani-sh-momo" aria-label="GitHub" title="GitHub">
-      <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false">
-        <path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" />
-      </svg>
-    </a>
+    <div class="links">
+      <a href="log.html">Log</a>
+      <a href="https://github.com/orgs/aivara-se/projects/2/views/1?filterQuery=assignee%3Athani-sh-momo">Board</a>
+    </div>
   </nav>
   <!-- HEADER:END -->
   <div class="wrap">

@@ -84,6 +84,11 @@ for (const [name, html] of Object.entries(pages)) {
   for (const m of html.matchAll(/(?:src|href)\s*=\s*"([^"]+)"/g)) {
     const url = m[1];
     if (/^(https?:|mailto:|tel:|#|data:)/.test(url)) continue;
+    /* A {{TOKEN}} in a link is not a path: the placeholder check above already
+       reports it, and a generated site replaces it with an absolute URL before
+       this runs. Reading it as a missing file doubles the complaint and names a
+       file that was never meant to exist. */
+    if (/\{\{[A-Z_]+\}\}/.test(url)) continue;
     const key = url.split("#")[0];
     if (!refs.has(key)) refs.set(key, new Set());
     refs.get(key)!.add(name);
@@ -195,11 +200,34 @@ else if (headers["index.html"] !== headers["log.html"])
   bad("the two pages' header blocks differ — the header is the same block on every page");
 else {
   ok("both pages carry the identical header block");
-  if (!/class="portrait"/.test(headers["index.html"]!)) bad("the header carries no avatar");
-  else ok("the header carries the avatar");
+  const avatar = /class="portrait"[\s\S]*?<img[^>]*>/.exec(headers["index.html"]!)?.[0] ?? "";
+  if (!avatar) bad("the header carries no avatar");
+  else if (!/width="24"[^>]*height="24"/.test(avatar))
+    bad("the header's avatar is not 24x24 — the size is on the img, not only in the CSS");
+  else ok("the header carries the 24x24 avatar");
+  if (/class="icon"/.test(headers["index.html"]!))
+    bad("the header carries a GitHub mark again — the header is the avatar and two links, nothing else");
+  else ok("the header carries no GitHub mark");
 }
 if (/class="back"/.test(pages["log.html"])) bad("log.html still has a back link — the header replaced it");
 else ok("no back link on the log page");
+for (const [f, h] of Object.entries(pages)) {
+  if (!/\.top\s*\{[^}]*\bleft:/s.test(h)) bad(`${f}: .top does not set left — the avatar is at the left of the line`);
+  if (!/\.top\s+\.portrait\s*\{[^}]*conic-gradient/s.test(h))
+    bad(`${f}: .top .portrait has no conic-gradient — the avatar's ring is the front page's`);
+}
+if (Object.values(pages).every((h) => /\.top\s*\{[^}]*\bleft:/s.test(h) && /\.top\s+\.portrait\s*\{[^}]*conic-gradient/s.test(h)))
+  ok("both pages put the header at the left and ring the avatar");
+const posOf = (h: string) => /\.top\s*\{[^}]*position:\s*([a-z]+)/s.exec(h)?.[1] ?? null;
+const bareTop = (h: string) => !/\.top\s*\{[^}]*background/s.test(h) && !/\.top\s+\.links\s*\{[^}]*background/s.test(h);
+for (const [f, h] of Object.entries(pages)) {
+  if (posOf(h) !== "absolute")
+    bad(`${f}: .top is ${posOf(h) ?? "not positioned"} — it must be absolute, so the header leaves with the page instead of staying fixed over it`);
+  if (!bareTop(h))
+    bad(`${f}: the header carries a background — the links are bare, the same style on every page`);
+}
+if (Object.values(pages).every((h) => posOf(h) === "absolute" && bareTop(h)))
+  ok("the header is absolute and its links bare on both pages");
 
 // ---------------------------------------------------------------- colour
 head("Colour");
