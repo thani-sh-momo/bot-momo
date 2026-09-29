@@ -178,6 +178,29 @@ if (entries.length) {
   if (!block.includes('class="empty"')) warn("no entries and no empty state — the log page will look unfinished");
 }
 
+// ---------------------------------------------------------------- header
+head("Header");
+const H_START = "<!-- HEADER:START -->";
+const H_END = "<!-- HEADER:END -->";
+const headerOf = (h: string): string | null => {
+  const parts = h.split(H_START);
+  if (parts.length !== 2) return null;
+  const inner = parts[1].split(H_END);
+  return inner.length === 2 ? inner[0] : null;
+};
+const headers = Object.fromEntries(Object.entries(pages).map(([f, h]) => [f, headerOf(h)]));
+const noHeader = Object.entries(headers).filter(([, v]) => v === null).map(([f]) => f);
+if (noHeader.length) bad(`no single HEADER:START / HEADER:END pair in ${noHeader.join(", ")}`);
+else if (headers["index.html"] !== headers["log.html"])
+  bad("the two pages' header blocks differ — the header is the same block on every page");
+else {
+  ok("both pages carry the identical header block");
+  if (!/class="portrait"/.test(headers["index.html"]!)) bad("the header carries no avatar");
+  else ok("the header carries the avatar");
+}
+if (/class="back"/.test(pages["log.html"])) bad("log.html still has a back link — the header replaced it");
+else ok("no back link on the log page");
+
 // ---------------------------------------------------------------- colour
 head("Colour");
 const accents: Record<string, string | null> = Object.fromEntries(
