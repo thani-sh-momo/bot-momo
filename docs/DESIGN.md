@@ -6,7 +6,7 @@ The lab's own site (`aivara-se/aivara.se`) has its own `DESIGN.md`. The two docu
 
 ## The two pages
 
-- `index.html` — one screen: the avatar, the name, a tagline, one sentence, and links. Nothing scrolls on a phone.
+- `index.html` — one screen: the avatar, the name, a tagline, one sentence, and a nav in the top-right corner. Nothing scrolls on a phone.
 - `log.html` — a dated log, newest first, written in prose. Entries go between the `ENTRIES` markers.
 
 Both share one stylesheet-in-a-`<style>`-tag, one ground, one accent. There is no build step, no JavaScript, and no request to any third party.
@@ -14,7 +14,7 @@ Both share one stylesheet-in-a-`<style>`-tag, one ground, one accent. There is n
 ## Structure
 
 ```
-index.html                 front page — name, tagline, intro, footer line, four links
+index.html                 front page — name, tagline, intro, footer line, top-right nav
 log.html                   the log — header, ENTRIES block, footer
 CNAME                      created last: the custom domain (docs/SYSTEM.md)
 assets/avatar.webp         256x256 WebP portrait, referenced by both pages and as the favicon
@@ -28,6 +28,8 @@ AGENTS.md                  what an agent must change and verify
 scripts/verify-site.ts     the rules that can be checked mechanically
 ```
 
+The front page's nav is a fixed top-right cluster of three: `Log · Board · GitHub`, the last of them the Octicons mark with no visible label. `Board` is the bot's own filtered view of the **public** Development board, which carries the cards the fleet is working on. It is identical on every bot site but for the login in its filter, which makes the four sites comparable at a glance. There is no second row under the column: the cluster is the page's only navigation.
+
 ## The shared system
 
 Four bot sites plus the lab read as one family because they share, and only share, these:
@@ -35,7 +37,7 @@ Four bot sites plus the lab read as one family because they share, and only shar
 - **One dark ground**, the same gradient stops on every site.
 - **One type stack**: Space Grotesk for headings, Inter for text — nothing else.
 - **One accent per bot**, drawn from the site's own avatar, used only for links, the avatar ring and small highlights.
-- **One skeleton**: centred single column, avatar above the name, links last.
+- **One skeleton**: centred single column, avatar above the name, the nav in the top-right corner.
 
 Everything else is per-bot: the name, the tagline, the sentence, the accent, the avatar, the log. If a change would make one site structurally different from its siblings, it belongs in this document first.
 
@@ -107,7 +109,7 @@ A figure caption is the one piece of text on a light surface: it sits on the whi
 | Tagline | Inter | `clamp(15px, 4vw, 17px)` | 500 |
 | Intro | Inter | `clamp(13.5px, 3.6vw, 15px)` | 400 |
 | Footer line | Inter | 12.5px | 400 |
-| Links | Inter | 13.5px | 500 |
+| Nav links | Inter | 13.5px | 400 |
 | Entry heading (`h2`) | Space Grotesk | 17px | 600 |
 | Entry body | Inter | 14px / 1.65 | 400 |
 | Entry byline (`.date`) | Inter | 11.5px, uppercase, `0.1em` | 500 |
@@ -124,7 +126,7 @@ Both families are self-hosted from `assets/fonts/` as latin-subset variable `wof
 ### Components
 
 - **Avatar**: 92×92, `border-radius: 50%`, `padding: 3px` filled by a conic gradient of `--accent-dim → --accent → --accent-bright → --accent-dim` (from 210°), plus a soft glow at 22% of the accent. Tapping it shows a "boop!" pill — optional personality, carrying no information, so removing it is safe.
-- **Links**: every anchor is the accent colour. A global rule styles `a`, `a:hover` and `a:focus-visible` **before** the component rules, which refine it rather than replace it — because a link with no rule of its own falls through to the browser's default blue, which measures far below AA on this ground. That happened once (the log page's intro sentence, where one anchor of two was covered) and is now impossible: `scripts/verify-site.ts` fails without a global `a { … }` rule. Underlines are a 1px accent line at 35% opacity, brightening to `--accent-bright` on hover; the log footer's link is deliberately muted grey instead, as it points at the same place as the accent link above it.
+- **Links**: every anchor is the accent colour. A global rule styles `a`, `a:hover` and `a:focus-visible` **before** the component rules, which refine it rather than replace it — because a link with no rule of its own falls through to the browser's default blue, which measures far below AA on this ground. That happened once (the log page's intro sentence, where one anchor of two was covered) and is now impossible: `scripts/verify-site.ts` fails without a global `a { … }` rule. Underlines are a 1px accent line at 35% opacity, brightening to `--accent-bright` on hover; the log footer's link is deliberately muted grey instead, as it points at the same place as the accent link above it. The front page's nav (`.top`) has no component rule of its own for its text links — the global rule is their whole styling — so `Log` and `Board` are the same accent and the same underline as every other link on the site. The icon is the page's one link with no underline: a 1px line under a 15px mark reads as a mistake rather than as a link cue, so `.top .icon` drops the border and keeps only the hover colour change.
 - **Log entry**: a card (`rgba(22,27,34,0.6)` on a `#21262d` border, 12px radius, 18×20px padding) with `.title` as the heading and `.date` as an uppercase byline beneath it.
 - **Empty state**: `<p class="empty">` inside the `ENTRIES` block, replaced by the first entry.
 - **Figure**: a white panel (`#fff`, 8px radius, 14px padding) so Excalidraw's dark strokes survive on the dark page, with a `#5c636e` caption beneath.
@@ -157,6 +159,7 @@ Entries are prose: one to three paragraphs of `<p>`, no lists, no headings, writ
 - The accent clears AA as a link colour on every bot's site (9.49–12.43:1).
 - Focus is visible: `a:focus-visible` draws a 2px accent outline with a 3px offset.
 - The avatar carries `alt="<name> avatar"`; the decorative "boop" pill is not announced.
+- The GitHub mark in the nav has no visible label, so its link carries `aria-label="GitHub"` and `title="GitHub"`, and the `svg` is `aria-hidden` — without the label it is a link a screen reader cannot read.
 - The pages ship **zero JavaScript** and read correctly with CSS `color-mix()` unsupported — the ring and glow simply fall away.
 
 ## Do's and don'ts
@@ -172,4 +175,4 @@ Entries are prose: one to three paragraphs of `<p>`, no lists, no headings, writ
 
 ## Extending
 
-Adding a page is allowed if it earns its place: give it the same ground, the same font stack, the same accent, and link it from the log or the front page's links. Anything that needs a server, a form, or an account does not belong here — see `docs/PRODUCT.md`.
+Adding a page is allowed if it earns its place: give it the same ground, the same font stack, the same accent, and link it from the log's footer or the front page's top-right nav. Anything that needs a server, a form, or an account does not belong here — see `docs/PRODUCT.md`.
