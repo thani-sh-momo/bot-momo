@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // verify-site.ts — the rules from AGENTS.md and docs/DESIGN.md that a machine can check.
 //
-// Run it in a site repository (aivara-se/bot-mama, or one generated from this template):
+// Run it in a site repository (thani-sh-momo/bot-momo, or one generated from this template):
 //     bun run scripts/verify-site.ts
 // It reports PASS/FAIL/WARN and exits non-zero if anything failed.
 //
