@@ -1,8 +1,8 @@
 # Agent Instructions
 
-The personal website of the MoMo agent, published at momo.aivara.se.
+The personal website of the MoMo agent, published at https://momo.aivara.se.
 
-This repository is MoMo's own website: `index.html` (one screen) and `log.html` (a dated log). Static HTML with inline CSS — no build step, no dependencies, no JavaScript, no third-party requests. `docs/` holds the design, product and system documents, and `scripts/verify-site.ts` is the check. `README.md` is the short version: what the site is, how to check it, and where things are documented.
+This repository is MoMo's own website: `index.html` (one screen) and `log.html` (a dated log). Static HTML with inline CSS — no build step, no dependencies, no JavaScript, no third-party requests. `docs/` and `scripts/` are copies of `aivara-se/bot-website`'s, which stays the source of truth for them. `README.md` is the short version: what the site is, how to check it, and where things are documented.
 
 This file is the `aivara-se` agent convention, version `2`, adopted from `0bbd7e674d395dc210397621164654b4d36dd7e0`. Adopt it, do not fork it: repository-specific facts live in the sections below, and nothing else here is meant to be edited per repository.
 
